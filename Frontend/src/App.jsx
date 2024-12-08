@@ -1,34 +1,23 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Route, Routes } from "react-router-dom";
+import Layout from './components/Layout';
+import { useState } from "react";
+import GlobalChat from "./components/GlobalChat";
+import ChatRoom from "./components/ChatRoom";
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const [global, setGlobal] = useState(true);
+  const [chatRoom, setChatRoom] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [signUp, setSignup] = useState(false);
+  const [signIn, setSignin] = useState(false);
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="">
+      <Routes>
+        <Route path='/' element={<Layout setSignin={setSignin} setSignup={setSignup} signUp={signUp} signIn={signIn} global={global} setGlobal={setGlobal} chatRoom={chatRoom} setChatRoom={setChatRoom} loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}>
+          <Route path="" element={global?<GlobalChat loggedIn={loggedIn} />:<ChatRoom/>}/>
+        </Route>
+      </Routes>
+    </div>
   )
 }
 
