@@ -1,6 +1,8 @@
 import { useState } from "react";
 import SignupModal from "./SignupModal";
 import SigninModal from "./SigninModal";
+import editIcon from "/editIcon.png"
+import EditProfileModal from "./EditProfileModal";
 
 function ChatCard({ user }) {
     return (
@@ -219,34 +221,65 @@ function Navbar({loggedIn, setLoggedin}){
     const [signUp, setSignup] = useState(false);
     const [signIn, setSignin] = useState(false);
     const [logOut, setLogout] = useState(false);
+    const [editProfile, setEditProfile] = useState(false);
+    const userDetails = {
+        username : "Arjun",
+        pfp: "https://asdasdas"
+
+    }
+    function EditProfileFunction(){
+        setEditProfile(true);
+    }
     return (
         <div className="bg-[#1F1F3F] w-96 h-screen relative">
             <WelcomeMessage loggedIn={loggedIn}/>
-            <div className={`w-full h-20 flex items-center p-5 gap-2 ${loggedIn? "visible":"hidden"}`}>
-                <img src="https://via.placeholder.com/150" alt="Logo" className="h-10 w-10 rounded-full "/>
-                <p className="text-base font-semibold">Username</p>
-            </div>
-            <div className={`w-full flex-grow px-5 overflow-y-auto h-5/6 ${loggedIn? "":"hidden"}`}>
-                <ChatList/>
-            </div>
+            {editProfile && <EditProfileModal loggedIn={loggedIn} setEditProfile={setEditProfile} userDetails={userDetails}/>}
+            {
+                loggedIn && <div className="flex justify-center items-center h-20 gap-2">
+                    <img src="" alt="logo" className="bg-gray-500 p-2 rounded-lg"/>
+                    <p className="text-2xl font-bold">DISCUSSIONS</p>
+                </div>
+            }
+            {
+                loggedIn && <div className={`w-full h-4/6 px-5 overflow-scroll`}>
+                    <ChatList/>
+                </div>
+            }
             { signUp && <SignupModal signUp={signUp} setSignup={setSignup} setSignin={setSignin}/> }   
             { signIn && <SigninModal signIn={signIn} setSignup={setSignup} setSignin={setSignin}/> }   
             <div className="absolute bottom-0 w-full px-6 flex flex-col gap-3 bg-inherit py-4">
-                <button
-                    onClick={()=>setSignup(true)} 
-                    className={`bg-blue-600 p-3 rounded-full w-full text-sm font-semibold ${loggedIn? "hidden":"visible"} hover:bg-blue-500 transition-all duration-200`}>
-                    Sign Up
-                </button>
-                <button
-                    onClick={()=>setSignin(true)} 
-                    className={`bg-blue-600 p-3 rounded-full w-full text-sm font-semibold ${loggedIn? "hidden":"visible"} hover:bg-blue-500 transition-all duration-200`}>
-                    Sign In
-                </button>
-                <button
-                    onClick={()=>setLogout(true)} 
-                    className={`bg-red-600 p-3 rounded-full w-full text-sm font-semibold ${loggedIn? "visible":"hidden"} hover:bg-red-500 transition-all duration-200`}>
-                    Logout
-                </button>
+                {
+                    !loggedIn && <div>
+                        <button
+                            onClick={()=>setSignup(true)} 
+                            className={`bg-blue-600 p-3 rounded-full w-full text-sm font-semibold hover:bg-blue-500 transition-all duration-200`}>
+                            Sign Up
+                        </button>
+                        <button
+                            onClick={()=>setSignin(true)} 
+                            className={`bg-blue-600 p-3 rounded-full w-full text-sm font-semibold hover:bg-blue-500 transition-all duration-200`}>
+                            Sign In
+                        </button>
+                    </div>
+                }
+                {
+                    loggedIn && <div className="flex flex-col gap-4">
+                        <div className={`w-full flex justify-between items-center p-3 gap-2 border-2 border-gray-600 rounded-full`}>
+                            <div className="flex justify-center items-center gap-3">
+                                <img src="https://via.placeholder.com/150" alt="Logo" className="h-10 w-10 rounded-full "/>
+                                <p className="text-base font-semibold">Username</p>
+                            </div>
+                            <button onClick={EditProfileFunction} className="bg-gray-500 rounded-full p-2 hover:bg-gray-600 transition-all duration-300">
+                                <img src={editIcon} alt="..." className="h-5"/>
+                            </button>
+                        </div>
+                        <button
+                            onClick={()=>setLogout(true)} 
+                            className={`bg-red-600 p-3 rounded-full w-full text-sm font-semibold hover:bg-red-500 transition-all duration-200`}>
+                            Logout
+                        </button>
+                    </div>
+                }
             </div>
         </div>
     )

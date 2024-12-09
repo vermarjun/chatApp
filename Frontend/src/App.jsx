@@ -7,14 +7,14 @@ import ChatRoom from "./components/ChatRoom";
 function App() {
   const [global, setGlobal] = useState(true);
   const [chatRoom, setChatRoom] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
   const [signUp, setSignup] = useState(false);
   const [signIn, setSignin] = useState(false);
   return (
     <div className="">
       <Routes>
         <Route path='/' element={<Layout setSignin={setSignin} setSignup={setSignup} signUp={signUp} signIn={signIn} global={global} setGlobal={setGlobal} chatRoom={chatRoom} setChatRoom={setChatRoom} loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}>
-          <Route path="" element={global?<GlobalChat loggedIn={loggedIn} />:<ChatRoom/>}/>
+          <Route path="" element={global?<GlobalChat loggedIn={loggedIn} />:<ChatRoom loggedIn={loggedIn}/>}/>
         </Route>
       </Routes>
     </div>

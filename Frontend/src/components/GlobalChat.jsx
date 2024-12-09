@@ -145,7 +145,7 @@ function GlobalChat({loggedIn}){
     return (
         <div className="relative w-full flex flex-col">
             <div className="h-full w-full overflow-auto" ref={divRef} onScroll={handleScroll}>
-                <MessageCard messages={messages} />
+                <MessageCard messages={messages} loggedIn={loggedIn}/>
             </div>
             <div className="w-full">
                 <ChatInput onSend={handleSendMessage} loggedIn={loggedIn}/>

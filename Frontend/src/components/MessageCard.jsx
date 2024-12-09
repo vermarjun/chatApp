@@ -1,7 +1,8 @@
 import React from "react";
 
-function MessageCard({ messages }) {
-    const myUsername = "Me";
+function MessageCard({ messages, loggedIn }) {
+    let myUsername;
+    (loggedIn)? myUsername="Me":myUsername=null;
     return (
         <div className="flex flex-col w-full p-4">
             {messages.map((message, index) => {
