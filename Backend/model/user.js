@@ -8,12 +8,17 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    pfp : {
+        type: String,
+        default:"",
+        required: true,
     }
 }, {
     timestamps: true // Automatically add createdAt and updatedAt timestamps
 });
 
 // Export the User model
-const User = mongoose.model("User", UserSchema);
+const User = mongoose.model("users", UserSchema);
 
 export default User;

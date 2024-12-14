@@ -1,12 +1,12 @@
-import express from 'express'; 
-import {  } from '../controllers/userController.js'; 
+// import express from 'express'; 
+// import { registerUser, login, logoutUser } from '../controllers/userController.js'; 
 
-const router = express.Router(); 
+// const router = express.Router(); 
 
-router.post('/register',registerUser);
+// router.post('/register',registerUser);
 
-router.post('/login', login);
+// router.post('/login', login);
 
-router.get('/logout', logoutUser);
+// router.get('/logout', logoutUser);
 
-export default router;
+// export default router;

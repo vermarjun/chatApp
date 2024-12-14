@@ -1,7 +1,8 @@
 import ChatInput from "./ChatInput";
 import MessageCard from "./MessageCard";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import getBackIcon from "/getBackIcon.png";
+import { LogStateContext } from "../App";
 
 const CreateNewRoomModal = ({ loggedIn, setCreateNewRoom }) => {
   if (!loggedIn) return null;
@@ -212,7 +213,8 @@ function RightSideBar({ loggedIn, setCurrentRoom }) {
   );
 }
 
-function ChatRoom({ loggedIn }) {
+function ChatRoom() {
+  const {loggedIn, setLoggedin} = useContext(LogStateContext)
   const [hasMore, setHasMore] = useState(true);
   const [messages, setMessages] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(null);
@@ -227,13 +229,13 @@ function ChatRoom({ loggedIn }) {
     }
   }
   useEffect(() => {
-    console.log(divRef.current.scrollTop, divRef.current.clientHeight);
+    // console.log(divRef.current.scrollTop, divRef.current.clientHeight);
     divRef.current.scrollTop = divRef.current.scrollHeight;
   }, [messages]);
 
   // FETCH NEW MESSAGES AS SOON AS ROOM IS CHANGED:
   useEffect(()=>{
-    console.log(currentRoom);
+    // console.log(currentRoom);
   }, [currentRoom]);
   const handleSendMessage = (message) => {
     console.log("Message Sent:", message);

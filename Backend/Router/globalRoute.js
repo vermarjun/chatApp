@@ -1,10 +1,11 @@
 import express from 'express'; 
 import { fetchGlobalMessages, postGlobal } from '../controllers/globalChatController.js'; 
+import authMiddleware from '../middlewares/auth.js';
 
 const router = express.Router(); 
 
-router.get('/global', fetchGlobalMessages);
+router.get('', fetchGlobalMessages);
 
-router.post('/global',postGlobal);
+router.post('', authMiddleware ,postGlobal);
 
 export default router;

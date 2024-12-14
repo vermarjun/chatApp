@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
+import { LogStateContext } from "../App";
 
 function TopRightModal({text}){
     return (
@@ -8,20 +9,17 @@ function TopRightModal({text}){
     )
 }
 
-function ChatInput({ onSend, loggedIn }) {
+function ChatInput({ onSend, textareaRef }) {
+    const {loggedIn, setLoggedin} = useContext(LogStateContext);
     const [loginWarning, setLoginwarning] = useState(false); 
-    
     const [message, setMessage] = useState("");
-    const textareaRef = useRef(null);
     
     const handleSend = () => {
         if (!loggedIn){
             setLoginwarning(true);
             const timeout = setTimeout(()=>{
                 setLoginwarning(false);
-                console.log(timeout); 
                 clearTimeout(timeout);   
-                console.log(timeout); 
             }, 5000)
         }
         if (message.trim() !== "") {
