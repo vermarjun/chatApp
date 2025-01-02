@@ -9,15 +9,41 @@ export default function initializeWS(wss){
     let globalUsers = [];
     const rooms = new Map();
 
-    wss.on("connection", function connection(socket){
-        globalUsers.push(socket);
-        console.log(globalOnline," ", globalUsers.length);
+    wss.on("connection", (socket)=>{
         socket.on("message", (m)=>{
             const message = JSON.parse(m.toString());
-            // broadcasting a message to all users, including sender!
-            if (message.type === "sendMessage" && message.to === "global"){
+            if (message.type === "connectGlobal"){
+                // connect to global
+                globalUsers.push(socket);
+                socket.send(JSON.stringify({
+                    online: globalUsers.length,
+                    author: "",
+                    pfp: "",
+                    content: "",
+                    userId: "server"
+                }))
+            }
+            else if (message.type === "connectRoom"){
+                // connect to room
+                console.log("connected!")
+                const roomId = message.roomId;
+                if (!rooms.has(roomId)){
+                    rooms.set(roomId, []);
+                }
+                rooms.get(roomId).push(socket);
+                socket.send(JSON.stringify({
+                    online: globalUsers.length,
+                    author: "",
+                    pfp: "",
+                    content: "",
+                    userId: "server"
+                }))
+            }
+            else if (message.type === "sendMessage" && message.to === "global"){
+                // user sent a message to global
                 globalUsers.map((user)=>{
                     user.send(JSON.stringify({
+                        online: globalUsers.length,
                         author: message.author,
                         pfp: message.pfp,
                         content: message.content,
@@ -25,11 +51,13 @@ export default function initializeWS(wss){
                     }))
                 })
             }
-            if (message.type === "sendMessage" && message.to === "room"){
+            else if (message.type === "sendMessage" && message.to === "room"){
+                // user sent a message to a room
                 const room = rooms.get(message.roomId);
                 if (room){
-                    room.map((user)=>{
-                        user.send(JSON.stringify({
+                    room.map((socket)=>{
+                        socket.send(JSON.stringify({
+                            online: room.length,
                             author: message.author,
                             pfp: message.pfp,
                             content: message.content,
@@ -38,17 +66,11 @@ export default function initializeWS(wss){
                     })
                 }
             }
-            if (message.type === "joinRoom"){
-                const room = rooms.get(message.roomId);
-                if (room){
-                    room.push(socket); //if room exists then push this user to that room
-                }
-            }
         })
         
         socket.on("close", ()=>{
             globalUsers = globalUsers.filter(s => s !== socket)
-            console.log(globalOnline);
+            // console.log(globalOnline);
         })
     })
 }

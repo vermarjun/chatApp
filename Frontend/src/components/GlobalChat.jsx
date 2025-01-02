@@ -3,48 +3,17 @@ import ChatInput from "./ChatInput";
 import MessageCard from "./MessageCard";
 import axios from "axios"
 import profileIcon from "/profileIcon.png"
-import { API_URL ,SERVER_URL, UserDetailsContext, LogStateContext } from "../App";
+import { API_URL ,SERVER_URL, UserDetailsContext, LogStateContext, CurrentTabOnlineContext, SocketContext } from "../App";
 
-function GlobalChat(){
-    const socket = useRef(null);
-    // let socketHasRun = useRef(false);
-    useEffect(()=>{
-        // if (socketHasRun.current) return;
-        // socketHasRun.current = true;
-        socket.current = new WebSocket(`ws://${SERVER_URL}:3000`);
-        // socket.addEventListener("open", (event)=>{
-        //     socket.send("User Connected");
-        // })
-        return ()=>{
-            console.log("closing socket")
-            if (socket.current){
-                socket.current.close()
-            }
-        }
-    }, [])
-
-    // message received from server
-    if (socket.current){
-        socket.current.onmessage = (event)=>{
-            if (event.data) {
-                const payload = JSON.parse(event.data.toString());
-                const m = {
-                    author: {
-                        fullname : payload.author,
-                        pfp: payload.pfp,
-                    },
-                    content: payload.content,
-                    createdAt: Date.now(),
-                    _id: payload.userId,
-                }
-                setMessages((prev) => [...prev, m]);
-                // scrollToBottom(); // Scroll to the bottom after sending a message
-            }
-        }
-    }
-
+function GlobalChat(){  
+    // Context
+    const {socketRef} = useContext(SocketContext);
+    const socket = socketRef.current;
+    // const socket = s.current;
+    const {currentTabOnline, setCurrentTabOnline} = useContext(CurrentTabOnlineContext)
     const {loggedIn, setLoggedIn} = useContext(LogStateContext);
     const {userDetails, setUserDetails} = useContext(UserDetailsContext);
+
     const inputValue = useRef(null);
     const [hasMore, setHasMore] = useState(true);
     const [messages, setMessages] = useState([]);
@@ -54,23 +23,23 @@ function GlobalChat(){
     const divRef = useRef(null);
     const bottomRef = useRef(null);
 
-    function scrollToBottom() {
-        bottomRef.current.scrollIntoView({behavior: 'smooth'});
-    };
-
+    // as soon as component mounts, tell socket server to push this socket into it's global users array
     const hasRun = useRef(false); // to make sure this hook does not execute twice!!!!
     useEffect(()=>{
+        // return when socket does not open
+        if (!socket) return;
         if(!hasRun.current) {
             hasRun.current = true;
             return;
         }
         fetchMessages();
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GAVE ME MAJOR FUCKING HEADACHE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // wait for socket to open before sending message
+        socket.onopen = () => {
+            // console.log("done")
+            socket.send(JSON.stringify({type: "connectGlobal"}))
+        }
     }, []);
-
-    // useEffect(()=>{
-    //     bottomRef.current.scrollIntoView({behavior:"smooth"});
-    // }, [gotobottom])
-
     // infinite scroll and pagination for fetching data
     async function fetchMessages(){
         try {
@@ -97,16 +66,12 @@ function GlobalChat(){
             console.log(error);
         }
     }
-    function handleScroll(){
-        if (divRef.current.scrollTop === 0 && hasMore && !loading) {
-            fetchMessages();
-        }
-    }
+    // Send message to server
     const handleSendMessage = async (message) => {
         if (!loggedIn) return;
         try {
-            if (socket.current){
-                socket.current.send(JSON.stringify({
+            if (socket){
+                socket.send(JSON.stringify({
                     type:"sendMessage",
                     to: "global",
                     author: userDetails.username,
@@ -123,6 +88,39 @@ function GlobalChat(){
         } catch (error){
             console.log("Can Not Send Message, error: "+error);
         }
+    };
+    // Message sent by server
+    if (socket){
+        socket.onmessage = (event)=>{
+            if (event.data) {
+                const payload = JSON.parse(event.data.toString());
+                if (payload.userId === "server"){
+                    // this message was sent by server to send users in globalUsers array
+                    setCurrentTabOnline(payload.online);
+                }
+                else {
+                    const m = {
+                        author: {
+                            fullname : payload.author,
+                            pfp: payload.pfp,
+                        },
+                        content: payload.content,
+                        createdAt: Date.now(),
+                        _id: payload.userId,
+                    }
+                    setMessages((prev) => [...prev, m]);
+                    // scrollToBottom(); // Scroll to the bottom after sending a message
+                }
+            }
+        }
+    }
+    function handleScroll(){
+        if (divRef.current.scrollTop === 0 && hasMore && !loading) {
+            fetchMessages();
+        }
+    }
+    function scrollToBottom() {
+        bottomRef.current.scrollIntoView({behavior: 'smooth'});
     };
     return (
         <div className="relative w-full flex flex-col">
